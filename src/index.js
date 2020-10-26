@@ -7,7 +7,14 @@ const { uuid } = require('uuidv4') //npm install uuidv4
 const projects = [];
 
 app.get('/projects', (request, response) => {
-    return response.json(projects);
+    const { title } = request.query;
+
+    //Filtro por title
+    const results = title 
+        ? projects.filter(project => project.title.includes(title))
+        : projects
+
+    return response.json(results);
 })
 
 app.post('/projects', (request, response) => {
