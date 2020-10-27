@@ -5,8 +5,31 @@ app.use(express.json());
 
 const { uuid } = require('uuidv4') //npm install uuidv4
 const projects = [];
+var numRoutes = 0;
 
-app.get('/projects', (request, response) => {
+//Criação de Middleware
+function logRoutes(request, response, next) {
+    const { method, url } = request;
+
+    const route = `[${method.toUpperCase()}] ${url}`;
+
+    console.log(route);
+
+    return next();
+}
+//Determinando uso do middleware em todas as requisições 
+app.use(logRoutes);
+
+function countCreate(request, response, next) {
+    console.log(`Create Calls: ${++numRoutes}`);
+    return next();
+}
+function justAnotherMiddleware(request, response, next) {
+    console.log(`Nothing done here`);
+    return next();
+}
+
+app.get('/projects', justAnotherMiddleware, (request, response) => {
     const { title } = request.query;
 
     //Filtro por title
@@ -17,7 +40,7 @@ app.get('/projects', (request, response) => {
     return response.json(results);
 })
 
-app.post('/projects', (request, response) => {
+app.post('/projects', countCreate, justAnotherMiddleware, (request, response) => {
     const { title, owner } = request.body;
     const id = uuid();
     const project = {
